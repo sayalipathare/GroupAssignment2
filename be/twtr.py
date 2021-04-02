@@ -32,10 +32,11 @@ g = dict()
 
 # mongo
 #mongo_client = MongoClient('mongodb://localhost:27017/')
-mongo_client = MongoClient("mongodb+srv://admin:admin@tweets.8ugzv.mongodb.net/tweets?retryWrites=true&w=majority")
+mongo_client = MongoClient("mongodb+srv://sayalipathare:Sangita1993@cluster0.uzqe4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 bcrypt = Bcrypt(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -100,7 +101,7 @@ def encode_token(user_id, token_type):
     )
 
 def decode_token(token):
-    payload = jwt.decode(token, get_env_var("secret_key"))
+    payload = jwt.decode(token, get_env_var("secret_key"),algorithms=["HS256"])
     print("decode_token:", payload)
     return payload["sub"]
 
@@ -167,9 +168,10 @@ def login():
             userid = get_env_var('userids')[get_env_var('users').index(user)]
             access_token = encode_token(userid, "access")
             refresh_token = encode_token(userid, "refresh")
+            print("type of accesstoken is: ",type(access_token))
             response_object = {
-                "access_token": access_token.decode(),
-                "refresh_token": refresh_token.decode(),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
             }
             #return response_object, 200
             #return response_object
@@ -271,7 +273,7 @@ def atlas_connect():
     # });
 
     # Python
-    client = pymongo.MongoClient("mongodb+srv://admin:<password>@tweets.8ugzv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    client = pymongo.MongoClient("mongodb+srv://sayalipathare:Sangita1993@cluster0.uzqe4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = client.test
 
 
@@ -450,12 +452,7 @@ def get_tweets_week2():
 
 @app.route("/tweets-results", methods=["GET"])
 def get_tweets_results():
-    return json.dumps({"results":
-        sorted(
-            tweets.values(),
-            key = lambda t: t['date']
-        )
-    })
+    return json.dumps({"results":sorted(tweets.values(),key = lambda t: t['date'])})
 
 
 @app.route("/tweets-week-results", methods=["GET"])
